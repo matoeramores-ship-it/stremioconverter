@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Copy, Check, ExternalLink } from 'lucide-react';
+import { Copy, Check, ExternalLink, Code } from 'lucide-react';
 
 export default function Home() {
   const [url, setUrl] = useState('');
   const [host, setHost] = useState('');
   const [resultLink, setResultLink] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showCode, setShowCode] = useState(false);
 
   useEffect(() => {
     setHost(window.location.host);
@@ -25,11 +26,15 @@ export default function Home() {
     setResultLink(streamUrl);
   };
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(resultLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const copyToClipboard = (text: string, setter: (val: boolean) => void = setCopied) => {
+    navigator.clipboard.writeText(text);
+    setter(true);
+    setTimeout(() => setter(false), 2000);
   };
+
+  const reqs = `fastapi==0.111.0
+uvicorn==0.29.0
+yt-dlp==2024.4.9`;
 
   return (
     <div className="h-screen w-full bg-[#0A0A0B] text-[#E0E0E0] flex flex-col font-sans overflow-hidden">
@@ -41,12 +46,41 @@ export default function Home() {
           <span className="text-xl font-serif italic tracking-wide font-medium">Stremio DL Bridge</span>
         </div>
         <div className="flex items-center gap-6">
+          <button 
+            onClick={() => setShowCode(true)}
+            className="flex items-center gap-2 text-xs uppercase tracking-widest text-blue-400 hover:text-blue-300 transition-colors bg-[#121214] border border-[#222] px-3 py-1.5 rounded-md"
+          >
+            <Code size={14} /> View Render Files
+          </button>
           <span className="flex items-center gap-2 text-xs uppercase tracking-widest text-emerald-500 hidden sm:flex">
             <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Server Active
           </span>
           <span className="text-xs uppercase tracking-widest text-gray-500">v1.0.4 Production</span>
         </div>
       </nav>
+
+      {showCode && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+          <div className="bg-[#121214] border border-[#222] w-full max-w-2xl rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-[#222] bg-[#0A0A0B]">
+              <h2 className="text-sm uppercase tracking-widest text-white font-bold">requirements.txt</h2>
+              <button onClick={() => setShowCode(false)} className="text-gray-500 hover:text-white transition-colors">✕</button>
+            </div>
+            <div className="p-6 overflow-auto">
+              <p className="text-sm text-gray-400 mb-4">You can copy this file content directly to Render, or go to <strong>Settings &gt; Export to ZIP</strong> to get the entire project with the Python code included.</p>
+              <div className="bg-[#0A0A0B] border border-[#222] rounded-xl p-4 relative group">
+                <button 
+                  onClick={() => copyToClipboard(reqs)}
+                  className="absolute top-4 right-4 p-2 bg-[#121214] border border-[#222] hover:bg-[#222] hover:text-white rounded-lg transition-colors text-gray-400 flex items-center gap-2 text-xs"
+                >
+                  <Copy size={14} /> Copy
+                </button>
+                <pre className="text-sm font-mono text-blue-300">{reqs}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 flex flex-col items-center justify-center px-6 md:px-12 gap-10 overflow-y-auto py-12">
         <div className="text-center space-y-5 max-w-2xl">
@@ -83,7 +117,7 @@ export default function Home() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <button 
-                  onClick={copyToClipboard}
+                  onClick={() => copyToClipboard(resultLink)}
                   className="p-2.5 bg-[#121214] border border-[#222] hover:bg-[#222] hover:text-white rounded-lg transition-colors text-gray-400 flex items-center justify-center"
                   title="Copy to clipboard"
                 >
