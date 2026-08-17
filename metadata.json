@@ -1,0 +1,8 @@
+{
+  "name": "Stremio YT-DLP Addon Generator",
+  "description": "Generates a Python FastAPI + yt-dlp self-hostable Stremio addon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
